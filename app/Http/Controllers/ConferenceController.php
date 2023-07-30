@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conference;
+use App\Models\Partner;
 use Illuminate\Http\Request;
 
 class ConferenceController extends Controller
@@ -44,6 +45,38 @@ class ConferenceController extends Controller
             return response()->json($exception->getMessage());
         }
     }
+
+    //ADD PARTNERS
+    public function storePartners(Request $request, $id){
+        try {
+            $request->validate([
+                'description' => 'required',
+                'organization_id' => 'required|array',
+                'organization_id.*' => 'exists:organizations,id',
+                'partner_type_id' => 'required|exists:partner_types,id'
+            ]);
+            $conference = Conference::findOrFail($id);
+            $description = $request->description;
+            $organization_ids = $request->input('organization_id');
+            $partner_type_id = $request->input('partner_type_id');
+
+            foreach ($organization_ids as $organization_id){
+                $partner = Partner::firstOrCreate([
+                    'conference_id' => $conference->id,
+                    'organization_id' => $organization_id,
+                    'partner_type_id' => $partner_type_id,
+                ], [
+                    'description' => $description,
+                ]);
+            }
+
+            return response()->json("sve okej", 200);
+        }
+        catch (\Exception $exception){
+            return response()->json($exception->getMessage());
+        }
+
+    }
     //SHOW
     public function show($id){
         try
@@ -53,7 +86,17 @@ class ConferenceController extends Controller
         }
         catch (\Exception $e){
             return response()->json($e->getMessage());
-
+        }
+    }
+    //SHOW with organizatios
+    public function showConferencePartners($id){
+        try
+        {
+            $conference = Conference::with('city')->with('user')->with('partner.organization')->findOrFail($id);
+            return response()->json($conference);
+        }
+        catch (\Exception $e){
+            return response()->json($e->getMessage());
         }
     }
     //UPDATE

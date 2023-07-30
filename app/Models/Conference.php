@@ -32,4 +32,9 @@ class Conference extends Model
     {
         return $this->hasMany(ConferenceDay::class);
     }
+
+    public function partner() : HasMany
+    {
+        return $this->hasMany(Partner::class);
+    }
 }

@@ -7,10 +7,13 @@ use App\Http\Controllers\ConferenceDayController;
 use App\Http\Controllers\ConferenceRoleController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\OrganizationsOfferController;
 use App\Http\Controllers\OrganizationTypeController;
+use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PartnerTypeController;
 use App\Http\Controllers\RoleController;
 
+use App\Http\Controllers\TimetableController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -56,7 +59,9 @@ Route::controller(CityController::class)->group(function (){
 Route::controller(ConferenceController::class)->group(function (){
     Route::get('/conferences', 'index');
     Route::post('/conferences', 'store');
-    Route::get('/conferences/{id}', 'show');
+    Route::post('/conferences/{id}/partners', 'storePartners');
+    Route::get('/conferences/{id}', 'show'); //Vraća konferenciju bez njezinih partnera
+    Route::get('/conferences/{id}/partners', 'showConferencePartners'); //Vraća konferencije i njezine partnere
     Route::put('/conferences/{id}', 'update');
     Route::delete('/conferences/{id}', 'destroy');
 });
@@ -111,3 +116,23 @@ Route::controller(PartnerTypeController::class)->group(function (){
     Route::delete('/partnerTypes/{id}', 'destroy');
 });
 
+Route::controller(TimetableController::class)->group(function (){
+    Route::get('/timetables', 'index');
+    Route::post('/timetables', 'store');
+    Route::get('/timetables/{id}', 'show');
+    Route::put('/timetables/{id}', 'update');
+    Route::delete('/timetables/{id}', 'destroy');
+});
+
+Route::controller(OrganizationsOfferController::class)->group(function (){
+    Route::get('/organizationsOffers', 'index');
+    Route::post('/organizationsOffers', 'store');
+    Route::get('/organizationsOffers/{id}', 'show');
+    Route::put('/organizationsOffers/{id}', 'update');
+    Route::delete('/organizationsOffers/{id}', 'destroy');
+});
+Route::controller(PartnerController::class)->group(function (){
+    Route::get('/conference/{conference_id}/partners/{type_id}', 'showPartnersWithSameType'); //prikazuje partnere konferencije koji imaju isti tip partnerstva
+    Route::put('/partners/{id}', 'update');
+    Route::delete('/partners/{id}', 'destroy');
+});
