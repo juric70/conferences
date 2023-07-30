@@ -17,6 +17,8 @@ return new class extends Migration
             $table->string('address');
             $table->string('description');
             $table->boolean('approved');
+            $table->integer('publishable_number'); //koliko ih sveukupno ima
+            $table->integer('usage_number'); //koliko ih je iskoristeni
             $table->foreignId('city_id')->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->foreignId('organization_type_id')->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->foreignId('user_id')->constrained()->cascadeOnUpdate()->cascadeOnDelete();

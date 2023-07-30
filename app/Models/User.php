@@ -49,10 +49,6 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
-    public function conference() : HasMany
-    {
-        return $this->hasMany(Conference::class);
-    }
     public function organization():HasMany
     {
         return $this->hasMany(Organization::class);

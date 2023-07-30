@@ -17,8 +17,8 @@ return new class extends Migration
             $table->string('description');
             $table->date('starting_date');
             $table->date('ending_date');
-            $table->foreignId('user_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();;
-            $table->foreignId('city_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();
+            $table->foreignId('organization_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();;
+            $table->foreignId('city_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();;
             $table->timestamps();
         });
     }

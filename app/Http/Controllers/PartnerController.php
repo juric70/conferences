@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conference;
+use App\Models\Organization;
 use App\Models\Partner;
 use Illuminate\Http\Request;
 
@@ -25,6 +26,22 @@ class PartnerController extends Controller
         }
 
 
+    }
+
+    //SHOW ALL CONFERENCES OF ONE ORGANIZATION
+    public function conferencesByOrganization($organization_id){
+        try {
+            $organization = Organization::findOrFail($organization_id);
+
+            $conferences = $organization->partner()
+                ->with('conference', 'partner_type')
+                ->get();
+
+            return response()->json($conferences, 200);
+        }
+        catch (\Exception $exception) {
+            return response()->json($exception->getMessage());
+        }
     }
 
     //UPDATE

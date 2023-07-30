@@ -15,7 +15,7 @@ class Conference extends Model
         'description',
         'starting_date',
         'ending_date',
-        'user_id',
+        'organization_id',
         'city_id',
 
     ];
@@ -24,9 +24,9 @@ class Conference extends Model
         return $this->belongsTo(City::class);
     }
 
-    public function user():BelongsTo
+    public function organization():BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Organization::class);
     }
     public function conference_day() : HasMany
     {

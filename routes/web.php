@@ -105,7 +105,16 @@ Route::controller(OrganizationController::class)->group(function (){
     Route::post('/organizations', 'store');
     Route::get('/organizations/{id}', 'show');
     Route::put('/organizations/{id}', 'update');
+    Route::put('/organizations/{id}/approval', 'update');
     Route::delete('/organizations/{id}', 'destroy');
+
+    Route::post('/subscriptions/{organization_id}', 'storeOrganizationSubscription');
+    Route::put('/subscriptions/{id}', 'updatePaymentStatus');
+    Route::get('/organizations/{id}/all', 'showAllSubscriptionsOfOrganization');
+    Route::get('/organizations/{id}/paid', 'showAllPaidSubscriptionsOfOrganization');
+    Route::get('/organizations/{id}/unpaid', 'showAllUnpaidSubscriptionsOfOrganization');
+    Route::get('/subscriptions/{id}', 'showAllOrganisationsOfSubscription');
+    Route::delete('/subscriptions/{id}', 'destroySubscription');
 });
 
 Route::controller(PartnerTypeController::class)->group(function (){
@@ -133,6 +142,7 @@ Route::controller(OrganizationsOfferController::class)->group(function (){
 });
 Route::controller(PartnerController::class)->group(function (){
     Route::get('/conference/{conference_id}/partners/{type_id}', 'showPartnersWithSameType'); //prikazuje partnere konferencije koji imaju isti tip partnerstva
+    Route::get('/organization/{conference_id}/partners', 'conferencesByOrganization');
     Route::put('/partners/{id}', 'update');
     Route::delete('/partners/{id}', 'destroy');
 });

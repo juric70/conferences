@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Conference;
+use App\Models\Organization;
 use App\Models\Partner;
 use Illuminate\Http\Request;
 
@@ -11,7 +12,7 @@ class ConferenceController extends Controller
     //INDEX
     public function index(){
         try {
-            $conferences = Conference::with('user')->with('city')->get();
+            $conferences = Conference::with('organization')->with('city')->get();
             return response()->json($conferences);
         }
         catch (\Exception $exception){
@@ -23,23 +24,35 @@ class ConferenceController extends Controller
     //STORE
     public function store(Request $request){
         try {
+
             $request->validate([
                 'name'=>'required|max:255|unique:conferences',
                 'description'=>'required',
                 'starting_date'=>'required|date',
                 'ending_date'=>'required|date|after_or_equal:starting_date',
-                'user_id'=>'required|exists:users,id',
+                'organization_id'=>'required|exists:organizations,id',
                 'city_id'=>'required|exists:cities,id',
             ]);
-            $conference=Conference::create([
-                'name'=>$request->name,
-                'description'=>$request->description,
-                'starting_date'=>$request->starting_date,
-                'ending_date'=>$request->ending_date,
-                'user_id'=>$request->user_id,
-                'city_id'=>$request->city_id,
-            ]);
-            return response()->json($conference, 200);
+            $organization = Organization::findOrFail($request->organization_id);
+            $usage_number = $organization->usage_number;
+            if($organization->publishable_number - $usage_number >= 1){
+                $conference=Conference::create([
+                    'name'=>$request->name,
+                    'description'=>$request->description,
+                    'starting_date'=>$request->starting_date,
+                    'ending_date'=>$request->ending_date,
+                    'organization_id'=>$request->organization_id,
+                    'city_id'=>$request->city_id,
+                ]);
+                $usage_number += 1;
+                $organization->update([
+                    'usage_number' => $usage_number
+                ]);
+                return response()->json($conference, 200);
+            }else{
+                return response()->json('You must get new subscription :)', 204);
+            }
+
         }
         catch (\Exception $exception){
             return response()->json($exception->getMessage());
@@ -81,7 +94,7 @@ class ConferenceController extends Controller
     public function show($id){
         try
         {
-            $conference = Conference::with('city')->with('user')->findOrFail($id);
+            $conference = Conference::with('city')->with('organization')->findOrFail($id);
             return response()->json($conference);
         }
         catch (\Exception $e){
@@ -92,7 +105,7 @@ class ConferenceController extends Controller
     public function showConferencePartners($id){
         try
         {
-            $conference = Conference::with('city')->with('user')->with('partner.organization')->findOrFail($id);
+            $conference = Conference::with('city')->with('organization')->with('partner.organization')->findOrFail($id);
             return response()->json($conference);
         }
         catch (\Exception $e){
@@ -107,16 +120,16 @@ class ConferenceController extends Controller
                 'description'=>'required',
                 'starting_date'=>'required|date',
                 'ending_date'=>'required|date|after_or_equal:starting_date',
-                'user_id'=>'required|exists:users,id',
+                'organization_id'=>'required|exists:organizations,id',
                 'city_id'=>'required|exists:cities,id',
             ]);
-            $conference = Conference::with('user')->with('city')->findOrFail($id);
+            $conference = Conference::with('organization')->with('city')->findOrFail($id);
             $conference->update([
                 'name'=>$request->name,
                 'description'=>$request->description,
                 'starting_date'=>$request->starting_date,
                 'ending_date'=>$request->ending_date,
-                'user_id'=>$request->user_id,
+                'organization_id'=>$request->organization_id,
                 'city_id'=>$request->city_id,
             ]);
             return response()->json($conference, 200);
