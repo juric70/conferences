@@ -57,4 +57,8 @@ class User extends Authenticatable
     {
         return $this->hasMany(Timetable::class);
     }
+    public function tickets() : HasMany
+    {
+        return $this->hasMany(Ticket::class);
+    }
 }

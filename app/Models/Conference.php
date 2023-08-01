@@ -36,5 +36,8 @@ class Conference extends Model
     public function partner() : HasMany
     {
         return $this->hasMany(Partner::class);
+    }   public function users_offer() : HasMany
+    {
+        return $this->hasMany(UsersOffer::class);
     }
 }
