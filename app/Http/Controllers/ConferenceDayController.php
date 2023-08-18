@@ -12,7 +12,7 @@ class ConferenceDayController extends Controller
 
     //INDEX
     public function index(){
-        $conference_days = ConferenceDay::with('conference', 'conference.user', 'conference.city')->get();
+        $conference_days = ConferenceDay::with('conference', 'conference.city')->get();
         return response()->json($conference_days, 200);
     }
     //STORE

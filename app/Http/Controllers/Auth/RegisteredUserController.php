@@ -18,24 +18,37 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-    public function store(Request $request): Response
+    public function store(Request $request): \Illuminate\Http\JsonResponse
     {
-        $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
-        ]);
+        try {
+            $request->validate([
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
+                'password' => ['required', 'confirmed', Rules\Password::defaults()],
+                'telephone_number'=>['required'],
+                'address' => ['string', 'max:255'],
+                'role_id' => ['exists:roles,id', 'required'],
+                'city_id' => ['exists:cities,id', 'required'],
+            ]);
 
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password),
-        ]);
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+                'telephone_number'=> $request->telephone_number,
+                'address'=> $request->address,
+                'role_id'=> $request->role_id,
+                'city_id'=> $request->city_id
+            ]);
 
-        event(new Registered($user));
+            event(new Registered($user));
 
-        Auth::login($user);
+            Auth::login($user);
 
-        return response()->noContent();
+            return response()->json("Welcome!", 200);
+        }catch (\Exception $exception){
+            return response()->json($exception->getMessage());
+        }
+
     }
 }

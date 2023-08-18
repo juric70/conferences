@@ -37,6 +37,7 @@ class CityController extends Controller
      }
     }
 
+
     //SHOW
     public function show($id){
         try

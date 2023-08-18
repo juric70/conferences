@@ -7,6 +7,7 @@ use App\Http\Requests\Auth\LoginRequest;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
 
 class AuthenticatedSessionController extends Controller
 {
@@ -15,11 +16,17 @@ class AuthenticatedSessionController extends Controller
      */
     public function store(LoginRequest $request): Response
     {
-        $request->authenticate();
 
-        $request->session()->regenerate();
+        try {
+            $request->authenticate();
 
-        return response()->noContent();
+            $request->session()->regenerate();
+
+            return response()->noContent();
+        } catch (ValidationException $e) {
+            return response()->json($e->getMessage());
+        }
+
     }
 
     /**

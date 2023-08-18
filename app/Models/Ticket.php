@@ -24,12 +24,12 @@ class Ticket extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function conferenceDay() : BelongsTo
+    public function conference_day() : BelongsTo
     {
         return $this->belongsTo(ConferenceDay::class);
     }
 
-    public function usersOffer() : BelongsTo
+    public function users_offer() : BelongsTo
     {
         return $this->belongsTo(UsersOffer::class);
     }

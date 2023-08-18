@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use http\Client\Curl\User;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -27,6 +28,10 @@ class City extends Model
     public function organization():HasMany
     {
         return $this->hasMany(Organization::class);
+    }
+    public function users() : HasMany
+    {
+        return $this->hasMany(User::class);
     }
 
 }

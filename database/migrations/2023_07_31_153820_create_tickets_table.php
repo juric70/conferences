@@ -18,7 +18,7 @@ return new class extends Migration
             $table->foreignId('users_offer_id')->nullable()->constrained()->nullOnDelete()->cascadeOnUpdate();
             $table->integer('price');
             $table->boolean('paid');
-            $table->integer('payment_date');
+            $table->date('payment_date')->nullable();
             $table->timestamps();
         });
     }

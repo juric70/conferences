@@ -23,6 +23,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'telephone_number',
+        'address',
+        'role_id',
+        'city_id',
     ];
 
     /**
@@ -49,6 +53,11 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Role::class);
     }
+    public function city() : BelongsTo
+    {
+        return $this->belongsTo(City::class);
+    }
+
     public function organization():HasMany
     {
         return $this->hasMany(Organization::class);
@@ -60,5 +69,10 @@ class User extends Authenticatable
     public function tickets() : HasMany
     {
         return $this->hasMany(Ticket::class);
+    }
+
+    public function attendence() : HasMany
+    {
+        return $this->hasMany(Attendance::class);
     }
 }

@@ -50,7 +50,7 @@ class ConferenceController extends Controller
                 ]);
                 return response()->json($conference, 200);
             }else{
-                return response()->json('You must get new subscription :)', 204);
+                return response()->json('You must get new subscription :)', 201);
             }
 
         }

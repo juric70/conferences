@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CityController;
 use App\Http\Controllers\ConferenceController;
@@ -12,7 +13,9 @@ use App\Http\Controllers\OrganizationTypeController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\PartnerTypeController;
 use App\Http\Controllers\RoleController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\TimetableController;
+use App\Http\Controllers\UsersOfferController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -141,6 +144,7 @@ Route::controller(OrganizationsOfferController::class)->group(function (){
     Route::put('/organizationsOffers/{id}', 'update');
     Route::delete('/organizationsOffers/{id}', 'destroy');
 });
+
 Route::controller(PartnerController::class)->group(function (){
     Route::get('/conference/{conference_id}/partners/{type_id}', 'showPartnersWithSameType'); //prikazuje partnere konferencije koji imaju isti tip partnerstva
     Route::get('/organization/{conference_id}/partners', 'conferencesByOrganization');
@@ -148,3 +152,35 @@ Route::controller(PartnerController::class)->group(function (){
     Route::delete('/partners/{id}', 'destroy');
 });
 
+Route::controller(UsersOfferController::class)->group(function (){
+    Route::get('/usersOffers', 'index');
+    Route::post('/usersOffers', 'store');
+    Route::get('/usersOffers/{id}', 'show');
+    Route::put('/usersOffers/{id}', 'update');
+    Route::delete('/usersOffers/{id}', 'destroy');
+});
+
+Route::controller(TicketController::class)->group(function (){
+    Route::get('/tickets', 'index');
+    Route::post('/tickets', 'store');
+    Route::get('/tickets/{id}', 'show');
+    Route::get('/tickets/{conferenceDayId}/conferenceDay', 'showTicketsForConferenceDay');
+    Route::get('/tickets/{conferenceId}/conference', 'showTicketsForConference');
+    Route::get('/tickets/{userId}/users', 'showTicketsForUser');
+    Route::get('/tickets/{userId}/users/paid', 'showPaidTicketsForUser');
+    Route::get('/tickets/{userId}/users/unpaid', 'showUnpaidTicketsForUser');
+    Route::get('/tickets/{conferenceId}/conference/paid', 'showPaidTicketsForConference');
+    Route::get('/tickets/{conferenceId}/conference/unpaid', 'showUnpaidTicketsForConference');
+    Route::put('/tickets/{id}/pay', 'updatePayment');
+    Route::put('/tickets/{id}', 'update');
+    Route::delete('/tickets/{id}', 'destroy');
+});
+
+Route::controller(AttendanceController::class)->group(function (){
+    Route::post('/attendances', 'store_arrival');
+    Route::put('/attendances/{id}/departure', 'add_departure');
+    Route::put('/attendances/{id}/role', 'update_role');
+    Route::get('/attendances/{timetable_id}/timetables', 'showAttendanceForLecture');
+    Route::get('/attendances/{user_id}/user', 'showUserAttendenceAll');
+    Route::get('/attendances/{user_id}/user/{conference_day_id}/coference_day', 'showUserAttendanceOfOneConferenceDay');
+});

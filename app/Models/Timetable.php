@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Timetable extends Model
 {
@@ -31,6 +32,9 @@ class Timetable extends Model
     {
         return $this->belongsTo(User::class);
     }
-
+    public function attendence() : HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
 
 }
