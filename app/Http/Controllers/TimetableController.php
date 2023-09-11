@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\ConferenceDay;
 use App\Models\Timetable;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Mockery\Exception;
 use Ramsey\Uuid\Type\Time;
 
 class TimetableController extends Controller
@@ -18,10 +21,10 @@ class TimetableController extends Controller
     public function store(Request $request){
 
         try{
-            $request->validate([
+           $validator = Validator::make($request->all(),[
                 'start_time' => 'required',
                 'end_time' => 'required',
-                'title' => 'required|unique:timetables,title|max:255',
+                'title' => 'required|max:255',
                 'address' => 'required|max:255',
                 'conference_room' => 'required|max:255',
                 'description' => 'required',
@@ -29,7 +32,10 @@ class TimetableController extends Controller
                 'conference_day_id' => 'required|exists:conference_days,id',
                 'user_id' => 'required|exists:users,id',
             ]);
+            if($validator->fails()) {
 
+                return response()->json($validator->errors(),422);
+            }
             $timetable = Timetable::create([
                 'start_time' => $request->start_time,
                 'end_time' => $request->end_time,
@@ -62,13 +68,27 @@ class TimetableController extends Controller
         }
 
     }
+
+
+    //SHOW ALL TIMETABLES OF ONE CONFERENCE DAY
+
+    public function show_timetable_of_one_conference_day($id){
+        try{
+            $timetable = Timetable::where('conference_day_id',$id)->get();
+            return $timetable;
+        }catch(Exception $e){
+            return response()->json($e->getMessage());
+        }
+    }
+
+
     //UPDATE
     public function update(Request $request, $id){
         try{
-            $request->validate([
+           $validator = Validator::make($request->all(),[
                 'start_time' => 'required',
                 'end_time' => 'required',
-                'title' => 'required|unique:timetables,title, ' . $id . '|max:255',
+                'title' => 'required|max:255',
                 'address' => 'required|max:255',
                 'conference_room' => 'required|max:255',
                 'description' => 'required',
@@ -76,6 +96,10 @@ class TimetableController extends Controller
                 'conference_day_id' => 'required|exists:conference_days,id',
                 'user_id' => 'required|exists:users,id',
             ]);
+            if($validator->fails()) {
+
+                return response()->json($validator->errors(),422);
+            }
             $timetable = Timetable::with('user', 'conference_day')->findOrFail($id);
             $timetable->update([
                 'start_time' => $request->start_time,

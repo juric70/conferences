@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Organization;
 use App\Models\OrganizationsOffer;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -15,12 +16,17 @@ class OrganizationController extends Controller
         $organizations = Organization::with('user', 'city', 'organization_type')->get();
         return response()->json($organizations, 200);
     }
+    //SHOW ALL ORGANIZATIONS OF USER
+    public function show_organizations_of_user($id){
+        $organizations = Organization::where('user_id', $id)->with('user', 'city', 'organization_type')->get();
+        return response()->json($organizations, 200);
+    }
 
     //STORE
     public function store(Request $request){
 
         try{
-            $request->validate([
+            $validator = Validator::make($request->all(),[
                 'name' => 'required|max:255|unique:organizations',
                 'address' => 'required|max:255',
                 'description' => 'max:255',
@@ -28,6 +34,10 @@ class OrganizationController extends Controller
                 'user_id' => 'required|exists:users,id',
                 'organization_type_id' => 'required|exists:organization_types,id',
             ]);
+            if($validator->fails()) {
+
+                return response()->json($validator->errors(),422);
+            }
 
             $organization = Organization::create([
                 'name' => $request->name,
@@ -66,22 +76,27 @@ class OrganizationController extends Controller
     //UPDATE
     public function update(Request $request, $id){
         try{
-            $request->validate([
+          $validator=Validator::make($request->all(),[
                 'name' => 'required|max:255|unique:organizations,name,' . $id,
                 'address' => 'required|max:255',
                 'description' => 'max:255',
-                'approved'=> 'boolean|required',
+
                 'city_id' => 'required|exists:cities,id',
                 'user_id' => 'required|exists:users,id',
                 'organization_type_id' => 'required|exists:organization_types,id',
 
             ]);
+
+            if($validator->fails()) {
+
+                return response()->json($validator->errors(),422);
+            }
             $organization = Organization::with('city', 'user', 'organization_type')->findOrFail($id);
             $organization->update([
                 'name' => $request->name,
                 'address' => $request->address,
                 'description' => $request->description,
-                'approved' => $request->approved,
+
                 'city_id' => $request->city_id,
                 'user_id' => $request->user_id,
                 'organization_type_id' => $request->organization_type_id,
@@ -148,11 +163,11 @@ class OrganizationController extends Controller
 
             ]);
 
-            return response()->json(201);
+            return response()->json('ok',201);
 
         }
         catch (\Exception $e){
-            return response()->json($e->getMessage());
+            return response()->json($e->getMessage(),400);
         }
     }
 

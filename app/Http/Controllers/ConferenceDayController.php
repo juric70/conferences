@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Conference;
 use App\Models\ConferenceDay;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
 class ConferenceDayController extends Controller
@@ -15,16 +16,25 @@ class ConferenceDayController extends Controller
         $conference_days = ConferenceDay::with('conference', 'conference.city')->get();
         return response()->json($conference_days, 200);
     }
+
+    public function index_timetables(){
+        $conference_days = ConferenceDay::with('conference', 'conference.city', 'timetable')->get();
+        return response()->json($conference_days, 200);
+    }
     //STORE
     public function store(Request $request){
 
         try{
-            $request->validate([
+           $validator = Validator::make( $request->all(),[
                 'day_number' => 'required|numeric|unique:conference_days,day_number,null,id,conference_id, ' . $request->conference_id,
                 'price' => 'required|numeric',
                 'date' => 'required|date',
                 'conference_id' => 'required|exists:conferences,id',
             ]);
+            if($validator->fails()) {
+
+                return response()->json($validator->errors(),422);
+            }
 
             $conference_day = ConferenceDay::create([
                 'day_number' => $request->day_number,
@@ -33,7 +43,7 @@ class ConferenceDayController extends Controller
                 'conference_id' => $request->conference_id,
             ]);
 
-            return response()->json($conference_day, 201);
+            return response()->json($conference_day->id, 201);
         }
         catch (\Exception $e){
             return response()->json($e->getMessage());
@@ -68,7 +78,7 @@ class ConferenceDayController extends Controller
     public function show($id){
         try
         {
-            $conference_day = ConferenceDay::with('conference',  'conference.user', 'conference.city', 'categories')->findOrFail($id);
+            $conference_day = ConferenceDay::with('conference', 'conference.city', 'categories',  'timetable', 'timetable.user')->findOrFail($id);
             return response()->json($conference_day);
         }
         catch (\Exception $e){
@@ -81,20 +91,15 @@ class ConferenceDayController extends Controller
     public function update(Request $request, $id){
         try{
             $request->validate([
-                'day_number' => ['required','numeric',
-                    Rule::unique('conference_days')->ignore($id)->where(function ($query) use ($request){
-                        return $query->where('conference_id', $request->conference_id);
-                    })],
+
                 'price' => 'required|numeric',
-                'date' => 'required|date',
-                'conference_id' => 'required|exists:conferences,id',
+
             ]);
-            $conference_day = ConferenceDay::with('conference',  'conference.user', 'conference.city')->findOrFail($id);
+            $conference_day = ConferenceDay::with('conference', 'conference.city', 'categories',  'timetable', 'timetable.user')->findOrFail($id);
             $conference_day->update([
-                'day_number' => $request->day_number,
+
                 'price' => $request->price,
-                'date' => $request->date,
-                'conference_id' => $request->conference_id,
+
             ]);
             return response()->json($conference_day, 200);
         }

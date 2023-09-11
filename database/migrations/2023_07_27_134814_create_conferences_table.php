@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('conferences', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('description');
+            $table->text('description');
             $table->date('starting_date');
             $table->date('ending_date');
             $table->foreignId('organization_id')->nullable()->constrained()->cascadeOnUpdate()->nullOnDelete();;

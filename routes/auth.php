@@ -16,6 +16,15 @@ Route::post('/login', [AuthenticatedSessionController::class, 'store'])
                 ->middleware('guest')
                 ->name('login');
 
+Route::get('/users', [AuthenticatedSessionController::class, 'index'])
+    ->name('users');
+
+Route::get('/users/{email}', [AuthenticatedSessionController::class, 'show_id_by_email'])
+    ->name('usersemail');
+
+Route::get('/showUser', [AuthenticatedSessionController::class, 'showLoggedInUser'])
+                ->name('showUser');
+
 Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
                 ->middleware('guest')
                 ->name('password.email');
@@ -33,5 +42,5 @@ Route::post('/email/verification-notification', [EmailVerificationNotificationCo
                 ->name('verification.send');
 
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
-                ->middleware('auth')
+               // ->middleware('auth')
                 ->name('logout');

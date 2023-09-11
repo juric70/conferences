@@ -62,9 +62,12 @@ Route::controller(CityController::class)->group(function (){
 
 Route::controller(ConferenceController::class)->group(function (){
     Route::get('/conferences', 'index');
+    Route::get('/conferences_all', 'index_colors');
+    Route::get('/conferences/{id}/user', 'show_all_conferences_of_creator');
     Route::post('/conferences', 'store');
     Route::post('/conferences/{id}/partners', 'storePartners');
     Route::get('/conferences/{id}', 'show'); //Vraća konferenciju bez njezinih partnera
+    Route::get('/conferences/{id}/creator', 'show_creator_id');
     Route::get('/conferences/{id}/partners', 'showConferencePartners'); //Vraća konferencije i njezine partnere
     Route::put('/conferences/{id}', 'update');
     Route::delete('/conferences/{id}', 'destroy');
@@ -80,6 +83,7 @@ Route::controller(CategoryController::class)->group(function (){
 
 Route::controller(ConferenceDayController::class)->group(function (){
     Route::get('/conferenceDay', 'index');
+    Route::get('/conferenceDay_ti', 'index_timetables');
     Route::post('/conferenceDay', 'store');
     Route::post('/conferenceDay/{id}/categories', 'storeCategory');
     Route::get('/conferenceDay/{id}', 'show');
@@ -106,6 +110,8 @@ Route::controller(OrganizationTypeController::class)->group(function (){
 
 Route::controller(OrganizationController::class)->group(function (){
     Route::get('/organizations', 'index');
+    Route::get('/organizations/{id}/users', 'show_organizations_of_user');
+
     Route::post('/organizations', 'store');
     Route::get('/organizations/{id}', 'show');
     Route::put('/organizations/{id}', 'update');
@@ -132,6 +138,7 @@ Route::controller(PartnerTypeController::class)->group(function (){
 Route::controller(TimetableController::class)->group(function (){
     Route::get('/timetables', 'index');
     Route::post('/timetables', 'store');
+    Route::get('/timetables/{id}/conferenceDay', 'show_timetable_of_one_conference_day');
     Route::get('/timetables/{id}', 'show');
     Route::put('/timetables/{id}', 'update');
     Route::delete('/timetables/{id}', 'destroy');
@@ -154,8 +161,10 @@ Route::controller(PartnerController::class)->group(function (){
 
 Route::controller(UsersOfferController::class)->group(function (){
     Route::get('/usersOffers', 'index');
+    Route::get('/usersOffers/{conferenceId}/conferences', 'show_all_for_conference');
     Route::post('/usersOffers', 'store');
     Route::get('/usersOffers/{id}', 'show');
+    Route::get('/usersOffers/id/{code}', 'return_id_by_code');
     Route::put('/usersOffers/{id}', 'update');
     Route::delete('/usersOffers/{id}', 'destroy');
 });

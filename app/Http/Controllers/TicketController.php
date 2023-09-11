@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Date;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 use mysql_xdevapi\Exception;
 
 class TicketController extends Controller
@@ -26,15 +28,31 @@ class TicketController extends Controller
     public function store(Request $request)
     {
         try{
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'user_id' => 'required|exists:users,id',
                 'conference_days' => 'required|array',
-                'conference_days.*' => 'required|exists:conference_days,id',
+                'conference_days.*' => [
+                    'required',
+                    'exists:conference_days,id',
+                    Rule::unique('tickets', 'conference_day_id')->where(function ($query) use ($request) {
+                        return $query->where('user_id', $request->input('user_id'));
+                    }),
+                ],
                 'users_offer_id' => 'nullable|exists:users_offers,id',
             ]);
 
+            $usersOffer = null;
+            $usersOfferId = null;
+
+            if ($validator->fails()) {
+                return response()->json($validator->errors(), 422);
+            }
             $user = User::findOrFail($request->user_id);
-            $usersOffer = UsersOffer::findOrFail($request->users_offer_id);
+
+            if($request->users_offer_id != null){
+                $usersOffer = UsersOffer::findOrFail($request->users_offer_id);
+
+            }
 
             $selectedDays = ConferenceDay::whereIn('id', $request->conference_days)->get();
 
@@ -218,7 +236,7 @@ class TicketController extends Controller
     {
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         where('conference_day_id', $conferenceDayId)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets->groupBy(['created_at']), 200);
     }
 
     public function showTicketsForConference($conferenceId)
@@ -226,27 +244,27 @@ class TicketController extends Controller
         $conferenceDayIds = ConferenceDay::where('conference_id', $conferenceId)->pluck('id');
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         whereIn('conference_day_id', $conferenceDayIds)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets->groupBy(['created_at']), 200);
     }
     public function showTicketsForUser($userId)
     {
-        $tickets = Ticket::with('user','conference_day', 'users_offer')->
+        $tickets = Ticket::with('user','conference_day', 'users_offer', 'conference_day.conference', 'conference_day.categories', 'conference_day.timetable', 'conference_day.timetable.user')->
         where('user_id', $userId)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets, 200);
     }
 
     public function showPaidTicketsForUser($userId)
     {
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         where('user_id', $userId)->where('paid', true)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets, 200);
     }
 
     public function showUnpaidTicketsForUser($userId)
     {
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         where('user_id', $userId)->where('paid', false)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets->groupBy(['created_at']), 200);
     }
 
     public function showPaidTicketsForConference($conferenceId)
@@ -254,7 +272,7 @@ class TicketController extends Controller
         $conferenceDayIds = ConferenceDay::where('conference_id', $conferenceId)->pluck('id');
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         whereIn('conference_day_id', $conferenceDayIds)->where('paid', true)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets->groupBy(['created_at']), 200);
     }
 
     public function showUnpaidTicketsForConference($conferenceId)
@@ -262,7 +280,7 @@ class TicketController extends Controller
         $conferenceDayIds = ConferenceDay::where('conference_id', $conferenceId)->pluck('id');
         $tickets = Ticket::with('user','conference_day', 'users_offer')->
         whereIn('conference_day_id', $conferenceDayIds)->where('paid', false)->get();
-        return response()->json($tickets->groupBy(['created_at', 'user_id']), 200);
+        return response()->json($tickets->groupBy(['created_at']), 200);
     }
 
 

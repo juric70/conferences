@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules;
 
 class RegisteredUserController extends Controller
@@ -21,7 +22,7 @@ class RegisteredUserController extends Controller
     public function store(Request $request): \Illuminate\Http\JsonResponse
     {
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(),[
                 'name' => ['required', 'string', 'max:255'],
                 'email' => ['required', 'string', 'email', 'max:255', 'unique:'.User::class],
                 'password' => ['required', 'confirmed', Rules\Password::defaults()],
@@ -30,6 +31,10 @@ class RegisteredUserController extends Controller
                 'role_id' => ['exists:roles,id', 'required'],
                 'city_id' => ['exists:cities,id', 'required'],
             ]);
+            if($validator->fails()) {
+
+                return response()->json($validator->errors(),422);
+            }
 
             $user = User::create([
                 'name' => $request->name,
@@ -39,13 +44,13 @@ class RegisteredUserController extends Controller
                 'address'=> $request->address,
                 'role_id'=> $request->role_id,
                 'city_id'=> $request->city_id
-            ]);
+            ])->load('role');
 
             event(new Registered($user));
 
             Auth::login($user);
 
-            return response()->json("Welcome!", 200);
+            return response()->json($user, 200);
         }catch (\Exception $exception){
             return response()->json($exception->getMessage());
         }
